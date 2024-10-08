@@ -1,9 +1,11 @@
 package es.uji.mapi_spike0.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
@@ -23,6 +25,12 @@ class HomeFragment : Fragment() {
         // Find the MapView from the layout
         mapView = view.findViewById(R.id.mapView)
 
+        //Button test
+        view.findViewById<Button>(R.id.button)
+            .setOnClickListener {
+                Log.d("BUTTONS", "User tapped the button")
+            }
+
         return view
     }
 
@@ -30,7 +38,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Load the map with a style
-        mapView.getMapboxMap().loadStyleUri(Style.MAPBOX_STREETS)
+        mapView.mapboxMap.loadStyle(Style.MAPBOX_STREETS)
     }
 
     override fun onStart() {

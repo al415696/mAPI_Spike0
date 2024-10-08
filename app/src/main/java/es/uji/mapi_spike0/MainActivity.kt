@@ -1,20 +1,28 @@
 package es.uji.mapi_spike0
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModel
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import es.uji.mapi_spike0.databinding.ActivityMainBinding
+import es.uji.mapi_spike0.ui.home.HomeViewModel
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
+    //View model
+//    private val viewModel: ViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        //View model
+//        viewModel.selectedItem.observe(this, Observer { item ->
+//            // Perform an action with the latest item data.
+//        })
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
