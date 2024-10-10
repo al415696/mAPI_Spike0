@@ -11,10 +11,13 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import es.uji.mapi_spike0.databinding.ActivityMainBinding
 import es.uji.mapi_spike0.ui.home.HomeViewModel
+import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+//    public var testBoolean by Delegates.notNull<Boolean>()
+
     //View model
 //    private val viewModel: ViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +26,8 @@ class MainActivity : AppCompatActivity() {
 //        viewModel.selectedItem.observe(this, Observer { item ->
 //            // Perform an action with the latest item data.
 //        })
+//        testBoolean = false
+
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
