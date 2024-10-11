@@ -5,5 +5,5 @@ import com.mapbox.geojson.Point
 import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
 
 interface RouteMaker {
-    public fun getRoute(initialPoint: Point, endingPoint: Point) : GeoJsonSource
+    public fun getRoute(initialPoint: Point, endingPoint: Point) : String //Todo el GeoJson en String, no con la cabecera
 }

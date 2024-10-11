@@ -75,15 +75,9 @@ class HomeFragment : Fragment() {
             .setOnClickListener {
                 // Read the GeoJSON file from the assets folder
                 val geoJsonString = loadGeoJsonFromAsset("geojson/testRoute2.geojson")
-                // Create a GeoJSON source from the GeoJSON data
-                val geoJsonSource = geoJsonSource("route-source") {
-                    if (geoJsonString != null) {
-                        Log.d("Route", "Map extracted")
-                        data(geoJsonString)
-                    }
-                }
+
                 if (geoJsonString != null) {
-                    routeAdder?.addRoute(geoJsonString, geoJsonSource)
+                    routeAdder?.addRoute(geoJsonString)
                 }
                 Log.d("BUTTONS", "User tapped the button")
             }

@@ -1,19 +1,13 @@
 package es.uji.mapi_spike0.ui.home
 
 import android.content.Context
+import android.util.Log
 import android.view.View
-import com.google.gson.internal.bind.TypeAdapters.URI
 import com.mapbox.maps.MapView
-import com.mapbox.maps.extension.style.layers.addLayer
-import com.mapbox.maps.extension.style.layers.generated.FillLayer
-import com.mapbox.maps.extension.style.layers.generated.lineLayer
-import com.mapbox.maps.extension.style.layers.getLayer
-import com.mapbox.maps.extension.style.layers.getLayerAs
 import com.mapbox.maps.extension.style.sources.addSource
 import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
+import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
 import com.mapbox.maps.extension.style.sources.getSource
-import com.mapbox.maps.extension.style.sources.updateGeoJSONSourceFeatures
-import com.mapbox.maps.plugin.annotation.AnnotationManager
 import es.uji.mapi_spike0.R
 
 class RouteAdder {
@@ -27,13 +21,19 @@ class RouteAdder {
         mapView = view.findViewById(R.id.mapView)
         this.context = context
     }
-    fun addRoute(string: String, source: GeoJsonSource){
+    fun addRoute(allTheGeoJSON: String){
         val style = mapView.mapboxMap.style
-
+        // Create a GeoJSON source from the GeoJSON data
+        val source = geoJsonSource("route-source") {
+            if (allTheGeoJSON != null) {
+                Log.d("Route", "Map extracted")
+                data(allTheGeoJSON)
+            }
+        }
         style?.let {
             // Find the existing GeoJsonSource by ID and update its data
             val geoJsonSource = it.getSource("route-source") as? com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
-            geoJsonSource?.data(string)
+            geoJsonSource?.data(allTheGeoJSON)
         }
             try {
                 mapView.mapboxMap.addSource(source)
