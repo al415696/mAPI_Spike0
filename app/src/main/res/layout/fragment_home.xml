@@ -7,11 +7,12 @@
     android:layout_height="match_parent">
 
     <!-- MapView for Mapbox -->
+
     <com.mapbox.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="413dp"
         android:layout_height="587dp"
-        android:layout_marginBottom="144dp"
+        android:layout_marginBottom="200dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -22,7 +23,7 @@
         android:layout_height="93dp"
         android:layout_marginStart="1dp"
         android:layout_marginEnd="104dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="60dp"
         android:text="Change View"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

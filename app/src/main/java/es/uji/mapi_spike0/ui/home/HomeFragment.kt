@@ -3,6 +3,7 @@ package es.uji.mapi_spike0.ui.home
 import android.graphics.Bitmap
 
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -13,10 +14,17 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
+import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
+import com.mapbox.maps.extension.style.layers.addLayer
+import com.mapbox.maps.extension.style.layers.generated.LineLayer
+import com.mapbox.maps.extension.style.sources.addSource
+import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
+import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
+import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotation
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
@@ -24,18 +32,25 @@ import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import es.uji.mapi_spike0.R
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
+import java.io.IOException
 
 
 class HomeFragment : Fragment() {
 
     private lateinit var mapView: MapView
     // Para gestionar los estilos del mapa
-    private lateinit var listStyles: List<String>
+    private val listStyles = listOf(Style.MAPBOX_STREETS, Style.SATELLITE, Style.TRAFFIC_DAY,Style.TRAFFIC_NIGHT)
     private var indexStyle: Int = 0
     // Lista para almacenar los marcadores
     private val markers = mutableListOf<PointAnnotation>()
     // Gestor de marcadores en el mapa
     private lateinit var pointAnnotationManager: PointAnnotationManager
+    // Ruta API (usaremos la que ya creaste)
+    private val routeAPI = RouteAPI()
+    // Source de datos de ruta
+    private var geoJsonSource = GeoJsonSource.Builder("route-source")
+        .featureCollection(FeatureCollection.fromFeatures(emptyList())) // Inicial vacío
+        .build()
 
 
     override fun onCreateView(
@@ -48,9 +63,7 @@ class HomeFragment : Fragment() {
         // Obtén el PointAnnotationManager
         pointAnnotationManager = mapView.annotations.createPointAnnotationManager()
 
-        // Cambio de diseño del mapa
-        // Diseño inicial, por defecto
-        listStyles = listOf(Style.MAPBOX_STREETS, Style.SATELLITE, Style.TRAFFIC_DAY,Style.TRAFFIC_NIGHT)
+        // Configuración inicial del mapa
         val cameraOptions = CameraOptions.Builder()
             // Coordenadas UJI, punto de inicio del mapa
             .center(Point.fromLngLat( -0.06756093559351051,39.99316997818215))
@@ -60,11 +73,21 @@ class HomeFragment : Fragment() {
             .build()
         mapView.mapboxMap.setCamera(cameraOptions)
 
+
         // Cambiar el diseño cada vez que se pulsa el botón
         view.findViewById<Button>(R.id.styleButton)
             .setOnClickListener {
                 indexStyle = (indexStyle+1) % listStyles.size
-                mapView.mapboxMap.loadStyle(listStyles[indexStyle])
+                mapView.mapboxMap.loadStyle(listStyles[indexStyle]) {style ->
+                    style.addSource(geoJsonSource)
+
+                    // Añadir la capa de línea de nuevo
+                    val lineLayer = LineLayer("route-layer", "route-source").apply {
+                        lineColor(Color.parseColor("#FF0000"))  // Color de la línea (rojo)
+                        lineWidth(5.0)  // Ancho de la línea
+                    }
+                    style.addLayer(lineLayer)
+                }
                 Log.d("BUTTONS", "User tapped the button")
             }
 
@@ -75,6 +98,18 @@ class HomeFragment : Fragment() {
                 addMarkerToMap(point)
                 true
             }
+        }
+
+        // Rutas en el mapa
+        val lineLayer = LineLayer("route-layer", "route-source").apply {
+            lineColor(Color.parseColor("#FF0000"))  // Color de la línea (rojo)
+            lineWidth(5.0)  // Ancho de la línea
+        }
+
+        // Añadir el GeoJsonSource y LineLayer al mapa
+        mapView.mapboxMap.getStyle { style ->
+            style.addSource(geoJsonSource)
+            style.addLayer(lineLayer)
         }
         return view
     }
@@ -95,8 +130,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun addMarkerToMap(location: Point) {
-
-
         // Convierte el Drawable en Bitmap, no vale la función toBitmap  por que mi telefono es Android 9 :C
         val bitmap = convertDrawableToBitmap(AppCompatResources.getDrawable(requireContext(), R.drawable.red_marker))
 
@@ -118,6 +151,15 @@ class HomeFragment : Fragment() {
 
             // Agregar el marcador a la lista
             markers.add(marker)
+
+            if (markers.size == 2) {
+                val startPoint = markers[0].point
+                val endPoint = markers[1].point
+                println("Vamos a llamar a la API de rutas")
+
+                // Usar RouteAPI para obtener la ruta entre los dos puntos
+                getRouteAndDraw(startPoint, endPoint)
+            }
 
             // Configurar el listener para el clic en el marcador
             pointAnnotationManager.addClickListener { clickedMarker ->
@@ -149,6 +191,39 @@ class HomeFragment : Fragment() {
             drawable.setBounds(0, 0, canvas.width, canvas.height)
             drawable.draw(canvas)
             bitmap
+        }
+    }
+
+    // Función para obtener la ruta entre dos puntos y dibujarla
+    private fun getRouteAndDraw(startPoint: Point, endPoint: Point) {
+        try {
+            // Llamar a la API de rutas para obtener la ruta
+            val route = routeAPI.getRoute(startPoint, endPoint)
+            Log.d("GeoJson Response", route.toString())
+
+            // Dibujar la ruta en el mapa si obtenemos la respuesta en GeoJSON
+            drawRouteOnMap(route)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Log.e("Error", "Error obteniendo la ruta: ${e.message}")
+        }
+    }
+    // Función para dibujar la ruta en el mapa usando el GeoJSON
+    private fun drawRouteOnMap(geoJson: FeatureCollection) {
+        mapView.mapboxMap.getStyle { style ->
+            // Obtén el GeoJsonSource existente
+            val source = style.getSourceAs<GeoJsonSource>("route-source")
+
+            // Si la fuente existe, actualiza los datos
+            if (source != null) {
+                source.data(geoJson.toJson())// Actualiza los datos con el nuevo FeatureCollection
+            } else {
+                // Si la fuente no existe por alguna razón, crea una nueva
+                val newSource = GeoJsonSource.Builder("route-source")
+                    .featureCollection(geoJson)
+                    .build()
+                style.addSource(newSource)
+            }
         }
     }
 }

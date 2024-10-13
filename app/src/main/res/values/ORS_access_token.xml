@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="ors_access_token" translatable="false" tools:ignore="UnusedResources">5b3ce3597851110001cf6248d89338ee73144e65910e6058196bea9c</string>
+</resources>

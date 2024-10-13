@@ -55,5 +55,7 @@ dependencies {
 
     implementation("com.mapbox.maps:android:11.7.0")
     // Para hacer solicitudes HTTP con OkHttp
-    implementation ("com.squareup.okhttp3:okhttp:4.9.2")
+    implementation("com.squareup.okhttp3:okhttp:4.9.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0")
 }
