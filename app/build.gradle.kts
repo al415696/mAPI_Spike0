@@ -54,4 +54,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation("com.mapbox.maps:android:11.7.0")
+    // Para hacer solicitudes HTTP con OkHttp
+    implementation ("com.squareup.okhttp3:okhttp:4.9.2")
 }
