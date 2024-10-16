@@ -120,7 +120,7 @@ class PriceGetter {
 
         public fun getClosest(location: Point): Gasolinera {
             var closest: Gasolinera = gasolineras.get(0)
-
+            println("inicial" + closest)
             for (gas in gasolineras) {
                 if (distance(
                         gas.latitud.toDouble(),
@@ -128,14 +128,15 @@ class PriceGetter {
                         location.latitude(),
                         location.longitude()
                     ) < distance(
-                        gas.latitud.toDouble(),
-                        gas.longitudWGS84.toDouble(),
+                        closest.latitud.toDouble(),
+                        closest.longitudWGS84.toDouble(),
                         location.latitude(),
                         location.longitude()
                     )
                 )
                     closest = gas
             }
+            println("final" + closest)
             return closest
         }
 

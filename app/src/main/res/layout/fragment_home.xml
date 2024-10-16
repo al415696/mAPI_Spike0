@@ -11,7 +11,10 @@
     <com.mapbox.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="410dp"
-        android:layout_height="555dp"
+        android:layout_height="545dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="3dp"
+        app:layout_constraintBottom_toTopOf="@+id/styleButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,13 +34,13 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/debugButton"
+        android:id="@+id/priceButton"
         android:layout_width="124dp"
         android:layout_height="65dp"
         android:layout_marginStart="1dp"
         android:layout_marginEnd="104dp"
         android:layout_marginBottom="48dp"
-        android:text="Debug"
+        android:text="GET LOCAL PRICE"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -83,7 +86,7 @@
         android:layout_marginStart="164dp"
         android:layout_marginEnd="74dp"
         android:layout_marginBottom="68dp"
-        android:text="TextView"
+        android:text="-"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/elec_price"
         app:layout_constraintHorizontal_bias="0.0"
@@ -95,7 +98,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="52dp"
         android:layout_marginBottom="68dp"
-        android:text="TextView"
+        android:text="-"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
