@@ -58,4 +58,8 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0")
+    //Extras para debugging
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    implementation ("com.google.code.gson:gson:2.8.8")
+
 }

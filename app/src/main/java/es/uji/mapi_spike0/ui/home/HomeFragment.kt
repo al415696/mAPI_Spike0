@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import com.mapbox.geojson.FeatureCollection
@@ -32,6 +34,9 @@ import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import es.uji.mapi_spike0.R
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
+import kotlinx.coroutines.NonCancellable.join
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.IOException
 
 
@@ -51,6 +56,8 @@ class HomeFragment : Fragment() {
     private var geoJsonSource = GeoJsonSource.Builder("route-source")
         .featureCollection(FeatureCollection.fromFeatures(emptyList())) // Inicial vacío
         .build()
+    //Current set of gasolineras in memory
+    private lateinit var gasolineras : PriceGetter.GasolinerasManager
 
 
     override fun onCreateView(
@@ -111,6 +118,29 @@ class HomeFragment : Fragment() {
             style.addSource(geoJsonSource)
             style.addLayer(lineLayer)
         }
+
+        // Activar función en debbuging
+        view.findViewById<Button>(R.id.debugButton)
+            .setOnClickListener {
+            val pricer: PriceGetter = PriceGetter()
+
+            runBlocking { // this: CoroutineScope
+                    launch {
+                        gasolineras = pricer.obtenerPreciosCarburantesMadrid()
+                            ?.let { it1 -> PriceGetter.GasolinerasManager(it1) }!!
+                        Log.d("BUTTONS", "HERE!!")
+                        println("gasolineras: " + gasolineras.gasolineras)
+                        println("markers: " + markers.size)
+                        var texto = gasolineras.getClosest(markers[0].point).precioProducto.toString()
+                        println(texto)
+                        view.findViewById<TextView>(R.id.oil_price).text = texto
+                    }
+
+            }
+
+            Log.d("BUTTONS", "User tapped the button")
+        }
+
         return view
     }
 
