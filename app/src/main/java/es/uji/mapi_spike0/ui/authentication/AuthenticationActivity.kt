@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
+import es.uji.mapi_spike0.MainActivity
 import es.uji.mapi_spike0.R
 import es.uji.mapi_spike0.databinding.ActivityAuthenticationBinding
 
@@ -40,9 +41,11 @@ class AuthenticationActivity : AppCompatActivity() {
             if (binding.emailEditText.text.isNotEmpty() && binding.passwordEditText.text.isNotEmpty()) {
 
                 FirebaseAuth.getInstance().createUserWithEmailAndPassword(binding.emailEditText.text.toString(), binding.passwordEditText.text.toString()).addOnCompleteListener{
-
+                    println("estado it: " + it)
+                    println("estado it2: " + it.result)
+                    println("estado it3: " + (it.result.user?.email ?: "No user"))
                     if(it.isSuccessful){
-                        showLoggedUser(it.result?.user?.email ?: "", ProviderType.BASIC)
+                        showMain(it.result?.user?.email ?: "", ProviderType.BASIC)
                     } else {
                         showAlert()
                     }
@@ -58,7 +61,7 @@ class AuthenticationActivity : AppCompatActivity() {
                 FirebaseAuth.getInstance().signInWithEmailAndPassword(binding.emailEditText.text.toString(), binding.passwordEditText.text.toString()).addOnCompleteListener{
 
                     if(it.isSuccessful){
-                        showLoggedUser(it.result?.user?.email ?: "", ProviderType.BASIC)
+                        showMain(it.result?.user?.email ?: "", ProviderType.BASIC)
                     } else {
                         showAlert()
                     }
@@ -86,5 +89,13 @@ class AuthenticationActivity : AppCompatActivity() {
         }
         startActivity(loggedUserIntent)
     }
+    private fun showMain(email: String, provider: ProviderType) {
+        val loggedUserIntent = Intent(this, MainActivity::class.java).apply {
+            putExtra("email", email)
+            putExtra("provider", provider)
+        }
+        startActivity(loggedUserIntent)
+    }
+
 
 }
