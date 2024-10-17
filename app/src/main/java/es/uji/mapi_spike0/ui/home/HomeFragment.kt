@@ -38,7 +38,6 @@ import java.io.IOException
 
 
 class HomeFragment : Fragment() {
-
     private lateinit var mapView: MapView
     // Para gestionar los estilos del mapa
     private val listStyles = listOf(Style.MAPBOX_STREETS, Style.SATELLITE, Style.TRAFFIC_DAY,Style.TRAFFIC_NIGHT)
@@ -54,7 +53,7 @@ class HomeFragment : Fragment() {
         .featureCollection(FeatureCollection.fromFeatures(emptyList())) // Inicial vacío
         .build()
     //Current set of gasolineras in memory
-    private lateinit var gasolineras : PriceGetter.GasolinerasManager
+    private lateinit var gasolineras : OilPriceGetter.GasolinerasManager
 
 
     override fun onCreateView(
@@ -62,6 +61,7 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         mapView = view.findViewById(R.id.mapView)
         // Obtén el PointAnnotationManager
@@ -116,23 +116,38 @@ class HomeFragment : Fragment() {
             style.addLayer(lineLayer)
         }
 
-        // Activar función en debbuging
+        // Calcular precio de gasolina cerca de marker
         view.findViewById<Button>(R.id.priceButton)
             .setOnClickListener {
-            val pricer: PriceGetter = PriceGetter()
+            val pricer: OilPriceGetter = OilPriceGetter()
                 view.findViewById<TextView>(R.id.oil_price).text = "Buscando..."
+                if (markers.size >=1){
 
-                runBlocking { // this: CoroutineScope
-                launch {
-                        gasolineras = pricer.obtenerPreciosCarburantesMadrid()
-                            ?.let { it1 -> PriceGetter.GasolinerasManager(it1) }!!
-                        Log.d("BUTTONS", "HERE!!")
-                        println("gasolineras: " + gasolineras.gasolineras)
-                        println("markers: " + markers.size)
-                        var texto = gasolineras.getClosest(markers[0].point).precioProducto.toString()
-                        println(texto)
-                        view.findViewById<TextView>(R.id.oil_price).text = texto + "€"
+                    runBlocking { // this: CoroutineScope
+                        launch {
+                            gasolineras = pricer.obtenerPreciosCarburantesMadrid()
+                                ?.let { it1 -> OilPriceGetter.GasolinerasManager(it1) }!!
+                            Log.d("BUTTONS", "HERE!!")
+                            println("gasolineras: " + gasolineras.gasolineras)
+                            println("markers: " + markers.size)
+                            var texto = gasolineras.getClosest(markers[0].point).precioProducto.toString()
+                            println(texto)
+                            view.findViewById<TextView>(R.id.oil_price).text = texto + "€/l"
+                        }
+
                     }
+                } else{
+                    view.findViewById<TextView>(R.id.oil_price).text = "No place selected"
+                }
+            val elecPrice : ElecPriceGetter = ElecPriceGetter()
+            runBlocking { // this: CoroutineScope
+                launch {
+                    val elec: ElecPriceGetter.Elec? = elecPrice.obtenerPrecioMedioElec()
+
+                    var texto2 = elec?.price.toString() + " " + elec?.units
+                    println(texto2)
+                    view.findViewById<TextView>(R.id.elec_price).text = texto2
+                }
 
             }
 

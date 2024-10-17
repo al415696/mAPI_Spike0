@@ -19,7 +19,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 
-class PriceGetter {
+class OilPriceGetter {
 
     // Modelo de datos para deserializar la respuesta JSON
 
@@ -28,10 +28,8 @@ class PriceGetter {
         @SerializedName("Dirección") val direccion: String,
         @SerializedName("Horario") val horario: String,
         @SerializedName("Latitud") val latitud: Float,
-//        @SerializedName("Latitud") val latitud: String,
         @SerializedName("Localidad") val localidad: String,
         @SerializedName("Longitud (WGS84)") val longitudWGS84: Float,
-//        @SerializedName("Longitud (WGS84)") val longitudWGS84: String,
         @SerializedName("Margen") val margen: String,
         @SerializedName("Municipio") val municipio: String,
         @SerializedName("PrecioProducto") val precioProducto: Float,
@@ -104,11 +102,8 @@ class PriceGetter {
     }
 
     data class ResponseData(
-//        @SerializedName("ListaEESSPrecio") val gasolineras: List<Gasolinera>
         @SerializedName("Fecha") val fecha: String,
         @SerializedName("ListaEESSPrecio") val gasolineras: List<Gasolinera>,
-//        @SerializedName("Nota") val nota: String,
-//        @SerializedName("ResultadoConsulta") val resultadoConsulta: String
     )
 
     class GasolinerasManager {
@@ -118,7 +113,7 @@ class PriceGetter {
             this.gasolineras = gasolineras
         }
 
-        public fun getClosest(location: Point): Gasolinera {
+        fun getClosest(location: Point): Gasolinera {
             var closest: Gasolinera = gasolineras.get(0)
             println("inicial" + closest)
             for (gas in gasolineras) {
@@ -165,7 +160,6 @@ class PriceGetter {
         return withContext(Dispatchers.IO) {  // Ejecutar en el hilo de entrada/salida
             val client = OkHttpClient()
             val request = Request.Builder()
-//                .url("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/")
                 .url("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroCCAAProducto/10/1") // Gasoleo A, en Comunidad Valenciana
                 .build()
 
@@ -174,7 +168,6 @@ class PriceGetter {
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
                     if (responseBody != null) {
-                        println("Todo JSON: " + responseBody)
                         var builder = GsonBuilder()
                         builder =
                             builder.registerTypeAdapter(
@@ -182,7 +175,6 @@ class PriceGetter {
                                 GasolineraDeserializer()
                             )
                         val gson = builder.create()
-//                        val gson = Gson()
                         val data = gson.fromJson(responseBody, ResponseData::class.java)
 
                         // Filtrar solo las gasolineras de Madrid
@@ -198,13 +190,12 @@ class PriceGetter {
         }
     }
 
-    // Función para iniciar la solicitud y manejar los datos obtenidos
+    // Función para iniciar la solicitud y mostrar los datos
     fun iniciarSolicitud() {
         CoroutineScope(Dispatchers.Main).launch {
             val gasolineras = obtenerPreciosCarburantesMadrid()
-            println("Lo obtenido es " + gasolineras)
             if (gasolineras != null) {
-                // Mostrar los precios de las gasolineras en Madrid
+                // Mostrar los precios de las gasolineras
                 gasolineras.forEach { gasolinera ->
                     println("Localidad: ${gasolinera.localidad}")
                     println("Precio Gasolina 95: ${gasolinera.precioProducto ?: "No disponible"}")
