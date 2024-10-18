@@ -91,6 +91,8 @@ class HomeFragment : Fragment() {
                         lineWidth(5.0)  // Ancho de la línea
                     }
                     style.addLayer(lineLayer)
+                    if (markers.size == 2)
+                    getRouteAndDraw(markers[0].point, markers[1].point)
                 }
                 Log.d("BUTTONS", "User tapped the button")
             }
@@ -127,14 +129,13 @@ class HomeFragment : Fragment() {
                         launch {
                             gasolineras = pricer.obtenerPreciosCarburantesMadrid()
                                 ?.let { it1 -> OilPriceGetter.GasolinerasManager(it1) }!!
-                            Log.d("BUTTONS", "HERE!!")
-                            println("gasolineras: " + gasolineras.gasolineras)
-                            println("markers: " + markers.size)
-                            var texto = gasolineras.getClosest(markers[0].point).precioProducto.toString()
-                            println(texto)
-                            view.findViewById<TextView>(R.id.oil_price).text = texto + "€/l"
+                            if (gasolineras.gasolineras == null || gasolineras.gasolineras.isEmpty())
+                                view.findViewById<TextView>(R.id.oil_price).text = "Fallido"
+                            else{
+                                var texto = gasolineras.getClosest(markers[0].point).precioProducto.toString()
+                                view.findViewById<TextView>(R.id.oil_price).text = texto + "€/l"
+                            }
                         }
-
                     }
                 } else{
                     view.findViewById<TextView>(R.id.oil_price).text = "No place selected"
@@ -143,10 +144,13 @@ class HomeFragment : Fragment() {
             runBlocking { // this: CoroutineScope
                 launch {
                     val elec: ElecPriceGetter.Elec? = elecPrice.obtenerPrecioMedioElec()
-
-                    var texto2 = elec?.price.toString() + " " + elec?.units
-                    println(texto2)
-                    view.findViewById<TextView>(R.id.elec_price).text = texto2
+                    if (elec == null){
+                        view.findViewById<TextView>(R.id.elec_price).text = "Fallido"
+                    }
+                    else{
+                        var texto2 = elec?.price.toString() + " " + elec?.units
+                        view.findViewById<TextView>(R.id.elec_price).text = texto2
+                    }
                 }
 
             }
