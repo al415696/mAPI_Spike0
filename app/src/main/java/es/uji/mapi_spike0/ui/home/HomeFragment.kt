@@ -24,7 +24,6 @@ import com.mapbox.maps.extension.style.layers.addLayer
 import com.mapbox.maps.extension.style.layers.generated.LineLayer
 import com.mapbox.maps.extension.style.sources.addSource
 import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
-import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotation
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
@@ -48,6 +47,8 @@ class HomeFragment : Fragment() {
     private lateinit var pointAnnotationManager: PointAnnotationManager
     // Ruta API (usaremos la que ya creaste)
     private val routeAPI = RouteAPI()
+    private lateinit var routeDrawer: RouteDrawer
+
     // Source de datos de ruta
     private var geoJsonSource = GeoJsonSource.Builder("route-source")
         .featureCollection(FeatureCollection.fromFeatures(emptyList())) // Inicial vacío
@@ -64,6 +65,8 @@ class HomeFragment : Fragment() {
 
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         mapView = view.findViewById(R.id.mapView)
+
+        routeDrawer = context?.let { RouteDrawer(view, it) }!!
         // Obtén el PointAnnotationManager
         pointAnnotationManager = mapView.annotations.createPointAnnotationManager()
 
@@ -91,6 +94,8 @@ class HomeFragment : Fragment() {
                         lineWidth(5.0)  // Ancho de la línea
                     }
                     style.addLayer(lineLayer)
+                    if (markers.size == 2)
+                    getRouteAndDraw(markers[0].point, markers[1].point)
                 }
                 Log.d("BUTTONS", "User tapped the button")
             }
@@ -127,14 +132,13 @@ class HomeFragment : Fragment() {
                         launch {
                             gasolineras = pricer.obtenerPreciosCarburantesMadrid()
                                 ?.let { it1 -> OilPriceGetter.GasolinerasManager(it1) }!!
-                            Log.d("BUTTONS", "HERE!!")
-                            println("gasolineras: " + gasolineras.gasolineras)
-                            println("markers: " + markers.size)
-                            var texto = gasolineras.getClosest(markers[0].point).precioProducto.toString()
-                            println(texto)
-                            view.findViewById<TextView>(R.id.oil_price).text = texto + "€/l"
+                            if (gasolineras.gasolineras == null || gasolineras.gasolineras.isEmpty())
+                                view.findViewById<TextView>(R.id.oil_price).text = "Fallido"
+                            else{
+                                var texto = gasolineras.getClosest(markers[0].point).precioProducto.toString()
+                                view.findViewById<TextView>(R.id.oil_price).text = texto + "€/l"
+                            }
                         }
-
                     }
                 } else{
                     view.findViewById<TextView>(R.id.oil_price).text = "No place selected"
@@ -143,10 +147,13 @@ class HomeFragment : Fragment() {
             runBlocking { // this: CoroutineScope
                 launch {
                     val elec: ElecPriceGetter.Elec? = elecPrice.obtenerPrecioMedioElec()
-
-                    var texto2 = elec?.price.toString() + " " + elec?.units
-                    println(texto2)
-                    view.findViewById<TextView>(R.id.elec_price).text = texto2
+                    if (elec == null){
+                        view.findViewById<TextView>(R.id.elec_price).text = "Fallido"
+                    }
+                    else{
+                        var texto2 = elec?.price.toString() + " " + elec?.units
+                        view.findViewById<TextView>(R.id.elec_price).text = texto2
+                    }
                 }
 
             }
@@ -245,28 +252,10 @@ class HomeFragment : Fragment() {
             Log.d("GeoJson Response", route.toString())
 
             // Dibujar la ruta en el mapa si obtenemos la respuesta en GeoJSON
-            drawRouteOnMap(route)
+            routeDrawer?.drawRoute(route)
         } catch (e: IOException) {
             e.printStackTrace()
             Log.e("Error", "Error obteniendo la ruta: ${e.message}")
-        }
-    }
-    // Función para dibujar la ruta en el mapa usando el GeoJSON
-    private fun drawRouteOnMap(geoJson: FeatureCollection) {
-        mapView.mapboxMap.getStyle { style ->
-            // Obtén el GeoJsonSource existente
-            val source = style.getSourceAs<GeoJsonSource>("route-source")
-
-            // Si la fuente existe, actualiza los datos
-            if (source != null) {
-                source.data(geoJson.toJson())// Actualiza los datos con el nuevo FeatureCollection
-            } else {
-                // Si la fuente no existe por alguna razón, crea una nueva
-                val newSource = GeoJsonSource.Builder("route-source")
-                    .featureCollection(geoJson)
-                    .build()
-                style.addSource(newSource)
-            }
         }
     }
 }
