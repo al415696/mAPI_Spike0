@@ -60,7 +60,13 @@ class HomeFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         mapView = view.findViewById(R.id.mapView)
+<<<<<<< Updated upstream
         // Obtén el PointAnnotationManager
+=======
+
+        routeDrawer = context?.let { RouteDrawer(view, it) }!!
+        // Obtén el PointAnnotationManager, para manejar marcadores
+>>>>>>> Stashed changes
         pointAnnotationManager = mapView.annotations.createPointAnnotationManager()
 
         // Configuración inicial del mapa
@@ -79,9 +85,9 @@ class HomeFragment : Fragment() {
             .setOnClickListener {
                 indexStyle = (indexStyle+1) % listStyles.size
                 mapView.mapboxMap.loadStyle(listStyles[indexStyle]) {style ->
-                    style.addSource(geoJsonSource)
 
-                    // Añadir la capa de línea de nuevo
+                    // Añadir la capa de línea y de datos de nuevo
+                    style.addSource(geoJsonSource)
                     val lineLayer = LineLayer("route-layer", "route-source").apply {
                         lineColor(Color.parseColor("#FF0000"))  // Color de la línea (rojo)
                         lineWidth(5.0)  // Ancho de la línea
@@ -91,7 +97,7 @@ class HomeFragment : Fragment() {
                 Log.d("BUTTONS", "User tapped the button")
             }
 
-        // Marcadores en el mapa
+        // Cada vez que se toca el mapa crea un marcador
         mapView.mapboxMap.loadStyleUri(Style.MAPBOX_STREETS) { style ->
             // Add click listener for map
             mapView.mapboxMap.addOnMapClickListener { point ->
@@ -111,6 +117,49 @@ class HomeFragment : Fragment() {
             style.addSource(geoJsonSource)
             style.addLayer(lineLayer)
         }
+<<<<<<< Updated upstream
+=======
+
+        // Calcular precio de gasolina cerca de marker
+        view.findViewById<Button>(R.id.priceButton)
+            .setOnClickListener {
+            val pricer: OilPriceGetter = OilPriceGetter()
+                view.findViewById<TextView>(R.id.oil_price).text = "Buscando..."
+                if (markers.size >=1){
+                    runBlocking { // this: CoroutineScope
+                        launch {
+                            gasolineras = pricer.obtenerPreciosCarburantesMadrid()
+                                ?.let { it1 -> OilPriceGetter.GasolinerasManager(it1) }!!
+                            if (gasolineras.gasolineras == null || gasolineras.gasolineras.isEmpty())
+                                view.findViewById<TextView>(R.id.oil_price).text = "Fallido"
+                            else{
+                                var texto = gasolineras.getClosest(markers[0].point).precioProducto.toString()
+                                view.findViewById<TextView>(R.id.oil_price).text = texto + "€/l"
+                            }
+                        }
+                    }
+                } else{
+                    view.findViewById<TextView>(R.id.oil_price).text = "No place selected"
+                }
+            val elecPrice : ElecPriceGetter = ElecPriceGetter()
+            runBlocking { // this: CoroutineScope
+                launch {
+                    val elec: ElecPriceGetter.Elec? = elecPrice.obtenerPrecioMedioElec()
+                    if (elec == null){
+                        view.findViewById<TextView>(R.id.elec_price).text = "Fallido"
+                    }
+                    else{
+                        var texto2 = elec?.price.toString() + " " + elec?.units
+                        view.findViewById<TextView>(R.id.elec_price).text = texto2
+                    }
+                }
+
+            }
+
+            Log.d("BUTTONS", "User tapped the button")
+        }
+
+>>>>>>> Stashed changes
         return view
     }
 
