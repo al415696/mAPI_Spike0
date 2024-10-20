@@ -16,7 +16,7 @@ class RouteAPI: RouteMaker {
     var client = OkHttpClient()
 
     override fun getRoute(initialPoint: Point, endingPoint: Point): FeatureCollection {
-// Lanzamos un Coroutine en el hilo de fondo
+    // Lanzamos un Coroutine en el hilo de fondo
         return runBlocking {
             withContext(Dispatchers.IO) {
                 val url = "https://api.openrouteservice.org/v2/directions/driving-car/geojson"
@@ -58,14 +58,14 @@ class RouteAPI: RouteMaker {
                             // Convertir la respuesta JSON en FeatureCollection
                             FeatureCollection.fromJson(responseBody)
                         } else {
-                            throw IOException("Empty response body")
+                            throw IOException("Respuesta vacía")
                         }
                     } else {
-                        throw IOException("Request failed: ${response.message}")
+                        throw IOException("Respuesta mala")
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    throw IOException("Request failed: ${e.message}")
+                    throw IOException("Solicitud Mala")
                 }
             }
         }
