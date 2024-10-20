@@ -13,7 +13,7 @@ import java.io.IOException
 
 class RouteAPI: RouteMaker {
 
-    private val client = OkHttpClient()
+    var client = OkHttpClient()
 
     override fun getRoute(initialPoint: Point, endingPoint: Point): FeatureCollection {
 // Lanzamos un Coroutine en el hilo de fondo
