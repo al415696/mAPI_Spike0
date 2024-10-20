@@ -24,7 +24,6 @@ import com.mapbox.maps.extension.style.layers.addLayer
 import com.mapbox.maps.extension.style.layers.generated.LineLayer
 import com.mapbox.maps.extension.style.sources.addSource
 import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
-import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotation
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
@@ -48,6 +47,8 @@ class HomeFragment : Fragment() {
     private lateinit var pointAnnotationManager: PointAnnotationManager
     // Ruta API (usaremos la que ya creaste)
     private val routeAPI = RouteAPI()
+    private lateinit var routeDrawer: RouteDrawer
+
     // Source de datos de ruta
     private var geoJsonSource = GeoJsonSource.Builder("route-source")
         .featureCollection(FeatureCollection.fromFeatures(emptyList())) // Inicial vacío
@@ -64,6 +65,8 @@ class HomeFragment : Fragment() {
 
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         mapView = view.findViewById(R.id.mapView)
+
+        routeDrawer = context?.let { RouteDrawer(view, it) }!!
         // Obtén el PointAnnotationManager
         pointAnnotationManager = mapView.annotations.createPointAnnotationManager()
 
@@ -249,28 +252,10 @@ class HomeFragment : Fragment() {
             Log.d("GeoJson Response", route.toString())
 
             // Dibujar la ruta en el mapa si obtenemos la respuesta en GeoJSON
-            drawRouteOnMap(route)
+            routeDrawer?.drawRoute(route)
         } catch (e: IOException) {
             e.printStackTrace()
             Log.e("Error", "Error obteniendo la ruta: ${e.message}")
-        }
-    }
-    // Función para dibujar la ruta en el mapa usando el GeoJSON
-    private fun drawRouteOnMap(geoJson: FeatureCollection) {
-        mapView.mapboxMap.getStyle { style ->
-            // Obtén el GeoJsonSource existente
-            val source = style.getSourceAs<GeoJsonSource>("route-source")
-
-            // Si la fuente existe, actualiza los datos
-            if (source != null) {
-                source.data(geoJson.toJson())// Actualiza los datos con el nuevo FeatureCollection
-            } else {
-                // Si la fuente no existe por alguna razón, crea una nueva
-                val newSource = GeoJsonSource.Builder("route-source")
-                    .featureCollection(geoJson)
-                    .build()
-                style.addSource(newSource)
-            }
         }
     }
 }
