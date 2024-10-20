@@ -2,6 +2,7 @@ package es.uji.mapi_spike0.ui.home
 
 import android.content.Context
 import android.view.View
+import com.mapbox.geojson.FeatureCollection
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
@@ -19,7 +20,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class RouteAdderTest {
 
-    private lateinit var routeAdder: RouteAdder
+    private lateinit var routeDrawer: RouteDrawer
     private lateinit var mockView: View
     private lateinit var mockMapView: MapView
     private lateinit var mockContext: Context
@@ -44,22 +45,23 @@ class RouteAdderTest {
         `when`(mockMapView.mapboxMap).thenReturn(mockMapboxMap)
         `when`(mockMapboxMap.style).thenReturn(mockStyle)
 
-        routeAdder = RouteAdder(mockView, mockContext)
+        routeDrawer = RouteDrawer(mockView, mockContext)
     }
 
     @Test
     fun testAddValidRoute() {
         // Dato GeoJSON válido
-        val validGeoJson = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[102.0, 0.5],[103.0, 0.5]]}}"
+        val validGeoJSON = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[102.0, 0.5],[103.0, 0.5]]}}"
+//        val validFeatureCollection : FeatureCollection = FeatureCollection.fromJson("{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[102.0, 0.5],[103.0, 0.5]]}}")
 
-        routeAdder.addRoute(validGeoJson)
+        routeDrawer.drawRoute(validFeatureCollection)
 
         verify(mockStyle).addSource(any(GeoJsonSource::class.java))
 
         val captor = ArgumentCaptor.forClass(GeoJsonSource::class.java)
         verify(mockStyle).addSource(captor.capture())
 
-        assert(captor.value.data == validGeoJson) // Verifica que los datos sean correctos
+        assert(captor.value.data == validFeatureCollection.toString()) // Verifica que los datos sean correctos
     }
 
     /* Por la naturaleza de la clase RouteAdder, la ruta pasada nunca podrá ser nula, para ser así pondríamos "addRoute(allTheGeoJSON: String?)"
@@ -73,11 +75,11 @@ class RouteAdderTest {
 
     @Test
     fun testAddRouteWithExistingSource() {
-        val validGeoJson = "{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[102.0, 0.5],[103.0, 0.5]]}}"
+        val validGeoJson : FeatureCollection = FeatureCollection.fromJson("{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[102.0, 0.5],[103.0, 0.5]]}}")
 
         `when`(mockStyle.getSource("route-source")).thenReturn(mockGeoJsonSource)
 
-        routeAdder.addRoute(validGeoJson)
+        routeDrawer.drawRoute(validGeoJson)
 
         verify(mockGeoJsonSource).data(validGeoJson) // Verifica que se actualice correctamente
     }
@@ -89,7 +91,7 @@ class RouteAdderTest {
         doThrow(RuntimeException("Error al añadir la fuente")).`when`(mockStyle).addSource(any())
 
         try {
-            routeAdder.addRoute(validGeoJson)
+            routeDrawer.drawRoute(validGeoJson)
         } catch (e: Exception) {
             assert(false)
         }
