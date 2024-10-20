@@ -46,7 +46,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <EditText
+    <TextView
         android:id="@+id/static_oil"
         android:layout_width="103dp"
         android:layout_height="76dp"
@@ -55,6 +55,7 @@
         android:layout_marginEnd="139dp"
         android:layout_marginBottom="89dp"
         android:ems="3"
+        android:gravity="center"
         android:inputType="text"
         android:text="Oil price"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -64,7 +65,7 @@
         app:layout_constraintTop_toBottomOf="@+id/mapView"
         app:layout_constraintVertical_bias="0.343" />
 
-    <EditText
+    <TextView
         android:id="@+id/static_electicity"
         android:layout_width="123dp"
         android:layout_height="78dp"
@@ -72,6 +73,7 @@
         android:layout_marginTop="11dp"
         android:layout_marginBottom="89dp"
         android:ems="3"
+        android:gravity="center"
         android:inputType="text"
         android:text="Elec. price"
         app:layout_constraintBottom_toBottomOf="parent"

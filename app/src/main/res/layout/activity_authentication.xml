@@ -8,8 +8,8 @@
     tools:context=".ui.authentication.AuthenticationActivity">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="387dp"
+        android:layout_height="241dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
@@ -28,6 +28,12 @@
             android:inputType="textEmailAddress"
             android:minHeight="48dp" />
 
+        <TextView
+            android:id="@+id/emailHintTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Email real" />
+
         <EditText
             android:id="@+id/passwordEditText"
             android:layout_width="match_parent"
@@ -37,6 +43,12 @@
             android:hint="@string/contrase_a"
             android:inputType="textPassword"
             android:minHeight="48dp" />
+
+        <TextView
+            android:id="@+id/passwordHintTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Contraseña de 6 o más caracteres" />
 
         <LinearLayout
             android:layout_width="match_parent"
