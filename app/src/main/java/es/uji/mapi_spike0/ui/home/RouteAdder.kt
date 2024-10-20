@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.View
 import com.mapbox.maps.MapView
 import com.mapbox.maps.extension.style.sources.addSource
-import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
 import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
 import com.mapbox.maps.extension.style.sources.getSource
 import es.uji.mapi_spike0.R

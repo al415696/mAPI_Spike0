@@ -40,6 +40,11 @@ android {
 }
 
 dependencies {
+    testImplementation("junit:junit:4.13.2")  // JUnit
+    testImplementation("org.mockito:mockito-core:4.10.0")  // Mockito Core para pruebas unitarias
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")  // Mockito para Kotlin
+    testImplementation("org.mockito:mockito-inline:4.10.0") // Plugin Mockito inline para poder hacer mocks de clases finales y estáticas
+    testImplementation("org.robolectric:robolectric:4.10") // Robolectric simula un entorno Android para la ejecución de pruebas unitarias
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
